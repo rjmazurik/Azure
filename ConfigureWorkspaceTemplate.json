@@ -1,0 +1,194 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaceName": {
+            "type": "string",
+            "defaultValue": "SQLProject-Workspace",
+            "metadata": {
+                "description": "Name of the workspace."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+              "description": "Specifies the location in which to create the workspace."
+            }
+        }
+    },
+    "resources": [
+    {
+        "apiVersion": "2020-08-01",
+        "type": "Microsoft.OperationalInsights/workspaces",
+        "name": "[parameters('workspaceName')]",
+        "location": "[parameters('location')]",
+        "resources": [
+            {
+                "type": "datasources",
+                "apiVersion": "2020-08-01",
+                "name": "Syslog",
+                "dependsOn": [
+                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                ],
+                "kind": "LinuxSyslog",
+                "properties": {
+                    "syslogName": "syslog",
+                    "syslogSeverities": [
+                        {
+                            "severity": "emerg"
+                        },
+                        {
+                            "severity": "alert"
+                        },
+                        {
+                            "severity": "crit"
+                        },
+                        {
+                            "severity": "err"
+                        },
+                        {
+                            "severity": "warning"
+                        },
+                        {
+                            "severity": "notice"
+                        },
+                        {
+                            "severity": "info"
+                        },
+                        {
+                            "severity": "debug"
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "datasources",
+                "apiVersion": "2020-08-01",
+                "name": "SyslogUser",
+                "dependsOn": [
+                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                ],
+                "kind": "LinuxSyslog",
+                "properties": {
+                    "syslogName": "user",
+                    "syslogSeverities": [
+                        {
+                            "severity": "emerg"
+                        },
+                        {
+                            "severity": "alert"
+                        },
+                        {
+                            "severity": "crit"
+                        },
+                        {
+                            "severity": "err"
+                        },
+                        {
+                            "severity": "warning"
+                        },
+                        {
+                            "severity": "notice"
+                        },
+                        {
+                            "severity": "info"
+                        },
+                        {
+                            "severity": "debug"
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "datasources",
+                "apiVersion": "2020-08-01",
+                "name": "SyslogKern",
+                "dependsOn": [
+                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                ],
+                "kind": "LinuxSyslog",
+                "properties": {
+                    "syslogName": "kern",
+                    "syslogSeverities": [
+                        {
+                            "severity": "emerg"
+                        },
+                        {
+                            "severity": "alert"
+                        },
+                        {
+                            "severity": "crit"
+                        },
+                        {
+                            "severity": "err"
+                        },
+                        {
+                            "severity": "warning"
+                        },
+                        {
+                            "severity": "notice"
+                        },
+                        {
+                            "severity": "info"
+                        },
+                        {
+                            "severity": "debug"
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "datasources",
+                "apiVersion": "2020-08-01",
+                "name": "SyslogDaemon",
+                "dependsOn": [
+                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                ],
+                "kind": "LinuxSyslog",
+                "properties": {
+                    "syslogName": "daemon",
+                    "syslogSeverities": [
+                        {
+                            "severity": "emerg"
+                        },
+                        {
+                            "severity": "alert"
+                        },
+                        {
+                            "severity": "crit"
+                        },
+                        {
+                            "severity": "err"
+                        },
+                        {
+                            "severity": "warning"
+                        },
+                        {
+                            "severity": "notice"
+                        },
+                        {
+                            "severity": "info"
+                        },
+                        {
+                            "severity": "debug"
+                        }
+                    ]
+                }
+            },
+            {
+                "apiVersion": "2020-08-01",
+                "type": "datasources",
+                "name": "SyslogCollection",
+                "dependsOn": [
+                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                ],
+                "kind": "LinuxSyslogCollection",
+                "properties": {
+                    "state": "Enabled"
+                }
+            }
+        ]
+      }
+    ]
+}
