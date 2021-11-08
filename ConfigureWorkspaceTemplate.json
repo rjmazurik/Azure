@@ -190,5 +190,15 @@
             }
         ]
       }
-    ]
+    ],
+    "outputs": {
+        "WorkspaceID": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2015-03-20').customerId]"
+        },
+        "WorkspaceKey": {
+            "type": "string",
+            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '2015-11-01-preview').primarySharedKey]"
+        }
+    }
 }
