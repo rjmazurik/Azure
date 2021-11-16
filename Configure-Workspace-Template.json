@@ -194,6 +194,43 @@
             {
                 "apiVersion": "2020-08-01",
                 "type": "datasources",
+                "name": "LinuxPerformanceMemory",
+                "dependsOn": [
+                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                ],
+                "kind": "LinuxPerformanceObject",
+                "properties": {
+                    "objectName": "Memory",
+                    "instanceName": "*",
+                    "intervalSeconds": 60,
+                    "performanceCounters": [
+                        {"counterName": "% Used Memory"},
+                        {"counterName": "% Used Swap Space"},
+                        {"counterName": "Available MBytes Memory"}
+                    ]
+                }
+            },
+            {
+                "apiVersion": "2020-08-01",
+                "type": "datasources",
+                "name": "LinuxPerformanceNetwork",
+                "dependsOn": [
+                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                ],
+                "kind": "LinuxPerformanceObject",
+                "properties": {
+                    "objectName": "Network",
+                    "instanceName": "*",
+                    "intervalSeconds": 60,
+                    "performanceCounters": [
+                        {"counterName": "Total Bytes Received"},
+                        {"counterName": "Total Bytes Transmitted"}
+                    ]
+                }
+            },
+            {
+                "apiVersion": "2020-08-01",
+                "type": "datasources",
                 "name": "LinuxPerformanceProcessor",
                 "dependsOn": [
                     "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
