@@ -15,6 +15,13 @@
             "metadata": {
               "description": "Specifies the location in which to create the workspace."
             }
+        },
+        "DataCollectionRuleName": {
+            "type": "string",
+            "defaultValue": "SQLProject-DataCollectionRule",
+            "metadata": {
+                "description": "Name of the Data Collection Rule"
+            }
         }
     },
     "resources": [
@@ -278,6 +285,65 @@
             },
             "subscriptionId": "[split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[2]]",
             "resourceGroup": "[split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[4]]"
+        },
+        {
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('DataCollectionRuleName')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]"
+            ],
+            "properties": {
+                "description": "Data collection rule for VM Insights health.",
+                "dataSources": {
+                    "performanceCounters": [
+                        {
+                            "streams": [
+                                "Microsoft-Perf"
+                            ],
+                            "samplingFrequencyInSeconds": 60,
+                            "counterSpecifiers": [
+                                "\\LogicalDisk(*)\\% Free Space",
+                                "\\Memory\\Available Bytes",
+                                "\\Processor(_Total)\\% Processor Time"
+                            ],
+                            "name": "VMHealthPerfCounters"
+                        }
+                    ],
+                    "extensions": [
+                        {
+                            "streams": [
+                                "Microsoft-HealthStateChange"
+                            ],
+                            "extensionName": "HealthExtension",
+                            "extensionSettings": {},
+                            "inputDataSources": [
+                                "VMHealthPerfCounters"
+                            ],
+                            "name": "Microsoft-VMInsights-Health"
+                        }
+                    ]
+                },
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "workspaceResourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
+                            "name": "Microsoft-HealthStateChange-Dest"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Microsoft-HealthStateChange"
+                        ],
+                        "destinations": [
+                            "Microsoft-HealthStateChange-Dest"
+                        ]
+                    }
+                ]
+            }
         }
     ],
     "outputs": {
@@ -288,6 +354,10 @@
         "WorkspaceKey": {
             "type": "string",
             "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '2015-11-01-preview').primarySharedKey]"
+        },
+        "DataCollectionRuleID": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', parameters('DataCollectionRuleName')), '2021-04-01').immutableId]"
         }
     }
 }
