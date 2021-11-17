@@ -256,36 +256,38 @@
         ]
       },
       {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
-            "name": "VMISolutionDeployment",
-            "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": [
-                        {
-                            "apiVersion": "2015-11-01-preview",
-                            "type": "Microsoft.OperationsManagement/solutions",
-                            "location": "[parameters('location')]",
-                            "name": "[concat('VMInsights', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
-                            "properties": {
-                                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
-                            },
-                            "plan": {
-                                "name": "[concat('VMInsights', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
-                                "product": "[concat('OMSGallery/', 'VMInsights')]",
-                                "promotionCode": "",
-                                "publisher": "Microsoft"
-                            }
-                        }
-                    ]
-                }
-            },
-            "subscriptionId": "[split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[2]]",
-            "resourceGroup": "[split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[4]]"
+        "apiVersion": "2015-11-01-preview",
+        "type": "Microsoft.OperationsManagement/solutions",
+        "location": "[parameters('location')]",
+        "name": "[concat('VMInsights', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
+        "properties": {
+            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
         },
+        "plan": {
+            "name": "[concat('VMInsights', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
+            "product": "[concat('OMSGallery/', 'VMInsights')]",
+            "promotionCode": "",
+            "publisher": "Microsoft"
+        }
+      },
+    //   { REMOVE ME AFTER FULL DEPLOYMENT TEST
+    //     "type": "Microsoft.Resources/deployments",
+    //     "apiVersion": "2017-05-10",
+    //     "name": "VMISolutionDeployment",
+    //     "properties": {
+    //         "mode": "Incremental",
+    //         "template": {
+    //             "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    //             "contentVersion": "1.0.0.0",
+    //             "resources": [
+                    
+    //                 }
+    //                 ]
+    //             }
+    //         },
+    //         "subscriptionId": "[split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[2]]",
+    //         "resourceGroup": "[split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[4]]"
+    //     },
         {
             "type": "Microsoft.Insights/dataCollectionRules",
             "apiVersion": "2019-11-01-preview",
