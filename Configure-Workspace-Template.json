@@ -288,7 +288,7 @@
         },
         {
             "type": "Microsoft.Insights/dataCollectionRules",
-            "apiVersion": "2021-04-01",
+            "apiVersion": "2019-11-01-preview",
             "name": "[parameters('DataCollectionRuleName')]",
             "location": "eastus",
             "dependsOn": [
@@ -299,29 +299,42 @@
                 "dataSources": {
                     "performanceCounters": [
                         {
+                            "name": "VMHealthPerfCounters",
                             "streams": [
                                 "Microsoft-Perf"
                             ],
+                            "scheduledTransferPeriod": "PT1M",
                             "samplingFrequencyInSeconds": 60,
                             "counterSpecifiers": [
                                 "\\LogicalDisk(*)\\% Free Space",
                                 "\\Memory\\Available Bytes",
                                 "\\Processor(_Total)\\% Processor Time"
-                            ],
-                            "name": "VMHealthPerfCounters"
+                            ]
                         }
                     ],
                     "extensions": [
                         {
+                            "name": "Microsoft-VMInsights-Health",
                             "streams": [
                                 "Microsoft-HealthStateChange"
                             ],
                             "extensionName": "HealthExtension",
-                            "extensionSettings": {},
+                            "extensionSettings": {
+                                "schemaVersion": "1.0",
+                                "contentVersion": "",
+                                "healthRuleOverrides": [
+                                    {
+                                    "scopes": ["*"],
+                                    "monitors": ["root"],
+                                    "alertConfiguration": {
+                                        "isEnabled": true
+                                        }
+                                    }
+                                ]
+                            },
                             "inputDataSources": [
                                 "VMHealthPerfCounters"
-                            ],
-                            "name": "Microsoft-VMInsights-Health"
+                            ]
                         }
                     ]
                 },
