@@ -357,7 +357,7 @@
         },
         "DataCollectionRuleID": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', parameters('DataCollectionRuleName')), '2021-04-01').immutableId]"
+            "value": "[resourceId('Microsoft.Insights/dataCollectionRules', parameters('DataCollectionRuleName'))]"
         }
     }
 }
