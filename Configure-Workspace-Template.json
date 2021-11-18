@@ -1,378 +1,348 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "workspaceName": {
-            "type": "string",
-            "defaultValue": "SQLProject-Workspace",
-            "metadata": {
-                "description": "Name of the workspace."
-            }
-        },
-        "location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]",
-            "metadata": {
-              "description": "Specifies the location in which to create the workspace."
-            }
-        },
-        "DataCollectionRuleName": {
-            "type": "string",
-            "defaultValue": "SQLProject-DataCollectionRule",
-            "metadata": {
-                "description": "Name of the Data Collection Rule"
-            }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectName": {
+      "type": "string",
+      "defaultValue": "SQLProject",
+      "metadata": {
+        "description": "Specifies a name for generating resource names."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the location for all resources."
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Specifies a username for the Virtual Machine."
+      }
+    },
+    "adminPassword": {
+      "type": "string",
+      "defaultValue": "Thisisapassword1",
+      "metadata": {
+        "description": "Specifies a password for the Virtual Machine."
+      }
+    }
+  },
+  "variables": {
+    "vNetName": "[concat(parameters('projectName'), '-vnet')]",
+    "vNetAddressPrefixes": "10.0.0.0/16",
+    "vNetSubnetName": "[concat(parameters('projectName'), '-subnet')]",
+    "vNetSubnetAddressPrefix": "10.0.0.0/24",
+    "vmName": "[concat(parameters('projectName'), '-vm')]",
+    "publicIPAddressName": "[concat(parameters('projectName'), '-ip')]",
+    "networkInterfaceName": "[concat(parameters('projectName'), '-nic')]",
+    "networkSecurityGroupName": "[concat(parameters('projectName'), '-nsg')]",
+    "networkSecurityGroupName2": "[concat(variables('vNetSubnetName'), '-nsg')]"
+    
+  },
+  "resources": [
+    {
+        "type": "Microsoft.Resources/deployments", 
+        "apiVersion": "2021-04-01",                
+        "name": "WorkspaceTemplate",               
+        "properties": {                            
+          "mode": "Incremental",                   
+          "templateLink": {
+            "uri":"https://raw.githubusercontent.com/rjmazurik/Test/main/Configure-Workspace-Template.json",
+            "contentVersion":"1.0.0.0"
+          }
         }
     },
-    "resources": [
     {
-        "apiVersion": "2020-08-01",
-        "type": "Microsoft.OperationalInsights/workspaces",
-        "name": "[parameters('workspaceName')]",
-        "location": "[parameters('location')]",
-        "properties": {},
-        "resources": [
-            {
-                "type": "datasources",
-                "apiVersion": "2020-08-01",
-                "name": "Syslog",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxSyslog",
-                "properties": {
-                    "syslogName": "syslog",
-                    "syslogSeverities": [
-                        {"severity": "emerg"},
-                        {"severity": "alert"},
-                        {"severity": "crit"},
-                        {"severity": "err"},
-                        {"severity": "warning"},
-                        {"severity": "notice"},
-                        {"severity": "info"},
-                        {"severity": "debug"}
-                    ]
-                }
-            },
-            {
-                "type": "datasources",
-                "apiVersion": "2020-08-01",
-                "name": "SyslogUser",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxSyslog",
-                "properties": {
-                    "syslogName": "user",
-                    "syslogSeverities": [
-                        {"severity": "emerg"},
-                        {"severity": "alert"},
-                        {"severity": "crit"},
-                        {"severity": "err"},
-                        {"severity": "warning"},
-                        {"severity": "notice"},
-                        {"severity": "info"},
-                        {"severity": "debug"}
-                    ]
-                }
-            },
-            {
-                "type": "datasources",
-                "apiVersion": "2020-08-01",
-                "name": "SyslogKern",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxSyslog",
-                "properties": {
-                    "syslogName": "kern",
-                    "syslogSeverities": [
-                        {"severity": "emerg"},
-                        {"severity": "alert"},
-                        {"severity": "crit"},
-                        {"severity": "err"},
-                        {"severity": "warning"},
-                        {"severity": "notice"},
-                        {"severity": "info"},
-                        {"severity": "debug"}
-                    ]
-                }
-            },
-            {
-                "type": "datasources",
-                "apiVersion": "2020-08-01",
-                "name": "SyslogDaemon",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxSyslog",
-                "properties": {
-                    "syslogName": "daemon",
-                    "syslogSeverities": [
-                        {"severity": "emerg"},
-                        {"severity": "alert"},
-                        {"severity": "crit"},
-                        {"severity": "err"},
-                        {"severity": "warning"},
-                        {"severity": "notice"},
-                        {"severity": "info"},
-                        {"severity": "debug"}
-                    ]
-                }
-            },
-            {
-                "type": "datasources",
-                "apiVersion": "2020-08-01",
-                "name": "SyslogAuth",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxSyslog",
-                "properties": {
-                    "syslogName": "auth",
-                    "syslogSeverities": [
-                        {"severity": "emerg"},
-                        {"severity": "alert"},
-                        {"severity": "crit"},
-                        {"severity": "err"},
-                        {"severity": "warning"},
-                        {"severity": "notice"},
-                        {"severity": "info"},
-                        {"severity": "debug"}
-                    ]
-                }
-            },
-            {
-                "type": "datasources",
-                "apiVersion": "2020-08-01",
-                "name": "SyslogAuthpriv",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxSyslog",
-                "properties": {
-                    "syslogName": "authpriv",
-                    "syslogSeverities": [
-                        {"severity": "emerg"},
-                        {"severity": "alert"},
-                        {"severity": "crit"},
-                        {"severity": "err"},
-                        {"severity": "warning"},
-                        {"severity": "notice"},
-                        {"severity": "info"},
-                        {"severity": "debug"}
-                    ]
-                }
-            },
-            {
-                "apiVersion": "2020-08-01",
-                "type": "datasources",
-                "name": "SyslogCollection",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxSyslogCollection",
-                "properties": {
-                    "state": "Enabled"
-                }
-            },
-            {
-                "apiVersion": "2020-08-01",
-                "type": "datasources",
-                "name": "LinuxPerformanceLogicalDisk",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxPerformanceObject",
-                "properties": {
-                    "objectName": "Logical Disk",
-                    "instanceName": "*",
-                    "intervalSeconds": 60,
-                    "performanceCounters": [
-                        {"counterName": "% Used Inodes"},
-                        {"counterName": "Free Megabytes"},
-                        {"counterName": "% Used Space"},
-                        {"counterName": "Disk Transfers/sec"},
-                        {"counterName": "Disk Reads/sec"},
-                        {"counterName": "Disk Writes/sec"}
-                    ]
-                }
-            },
-            {
-                "apiVersion": "2020-08-01",
-                "type": "datasources",
-                "name": "LinuxPerformanceMemory",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxPerformanceObject",
-                "properties": {
-                    "objectName": "Memory",
-                    "instanceName": "*",
-                    "intervalSeconds": 60,
-                    "performanceCounters": [
-                        {"counterName": "% Used Memory"},
-                        {"counterName": "% Used Swap Space"},
-                        {"counterName": "Available MBytes Memory"}
-                    ]
-                }
-            },
-            {
-                "apiVersion": "2020-08-01",
-                "type": "datasources",
-                "name": "LinuxPerformanceNetwork",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxPerformanceObject",
-                "properties": {
-                    "objectName": "Network",
-                    "instanceName": "*",
-                    "intervalSeconds": 60,
-                    "performanceCounters": [
-                        {"counterName": "Total Bytes Received"},
-                        {"counterName": "Total Bytes Transmitted"}
-                    ]
-                }
-            },
-            {
-                "apiVersion": "2020-08-01",
-                "type": "datasources",
-                "name": "LinuxPerformanceProcessor",
-                "dependsOn": [
-                    "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-                ],
-                "kind": "LinuxPerformanceObject",
-                "properties": {
-                    "objectName": "Processor",
-                    "instanceName": "*",
-                    "intervalSeconds": 60,
-                    "performanceCounters": [
-                        {"counterName": "% Processor Time"},
-                        {"counterName": "% Privileged Time"}
-                    ]
-                }
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "ssh_rule",
+            "properties": {
+              "description": "Locks inbound down to ssh default port 22.",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 123,
+              "direction": "Inbound"
             }
+          }
         ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('publicIPAddressName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Static"
       },
-      {
-        "apiVersion": "2015-11-01-preview",
-        "type": "Microsoft.OperationsManagement/solutions",
-        "location": "[parameters('location')]",
-        "name": "[concat('VMInsights', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
-        "properties": {
-            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+      "sku": {
+        "name": "Basic"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "comments": "Simple Network Security Group for subnet [variables('vNetSubnetName')]",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('networkSecurityGroupName2')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-22",
+            "properties": {
+              "priority": 1000,
+              "access": "Allow",
+              "direction": "Inbound",
+              "destinationPortRange": "22",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "default-allow-sql",
+            "properties": {
+              "priority": 1010,
+              "access": "Allow",
+              "direction": "Inbound",
+              "destinationPortRange": "1433",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('vNetName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vNetAddressPrefixes')]"
+          ]
         },
-        "plan": {
-            "name": "[concat('VMInsights', '(', split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[8], ')')]",
-            "product": "[concat('OMSGallery/', 'VMInsights')]",
-            "promotionCode": "",
-            "publisher": "Microsoft"
+        "subnets": [
+          {
+            "name": "[variables('vNetSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('vNetSubnetAddressPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('networkInterfaceName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('vNetSubnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-12-01",
+      "name": "[variables('vmName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+        "[resourceId('Microsoft.Resources/deployments', 'WorkspaceTemplate')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2s"
+        },
+        "osProfile": {
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": false,
+            "provisionVMAgent": true
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "fromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+            }
+          ]
         }
       },
-    //   { REMOVE ME AFTER FULL DEPLOYMENT TEST
-    //     "type": "Microsoft.Resources/deployments",
-    //     "apiVersion": "2017-05-10",
-    //     "name": "VMISolutionDeployment",
-    //     "properties": {
-    //         "mode": "Incremental",
-    //         "template": {
-    //             "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    //             "contentVersion": "1.0.0.0",
-    //             "resources": [
-                    
-    //                 }
-    //                 ]
-    //             }
-    //         },
-    //         "subscriptionId": "[split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[2]]",
-    //         "resourceGroup": "[split(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'/')[4]]"
-    //     },
+      "resources": [
+      {
+        "name": "my-custom-Linux-script",
+        "type": "extensions", 
+        "location": "[parameters('location')]",
+        "apiVersion": "2018-10-01",
+        "dependsOn": [
+            "[variables('vmName')]"
+        ],
+        "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.1",
+            "autoUpgradeMinorVersion": true,
+            "protectedSettings": {
+                "fileUris": [
+                  "https://raw.githubusercontent.com/rjmazurik/Test/main/SqlScript.bash"
+                ],
+                "commandToExecute": "bash ./SqlScript.bash"
+            }
+          }
+        },
         {
-            "type": "Microsoft.Insights/dataCollectionRules",
-            "apiVersion": "2019-11-01-preview",
-            "name": "[parameters('DataCollectionRuleName')]",
-            "location": "eastus",
+            "name": "LogAnalyticsAgent", 
+            "type": "extensions",
+            "apiVersion": "2018-10-01",
+            "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]"
+              "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]",
+              "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vmName'), 'my-custom-Linux-script')]"
             ],
             "properties": {
-                "description": "Data collection rule for VM Insights health.",
-                "dataSources": {
-                    "performanceCounters": [
-                        {
-                            "name": "VMHealthPerfCounters",
-                            "streams": [
-                                "Microsoft-Perf"
-                            ],
-                            "scheduledTransferPeriod": "PT1M",
-                            "samplingFrequencyInSeconds": 60,
-                            "counterSpecifiers": [
-                                "\\LogicalDisk(*)\\% Free Space",
-                                "\\Memory\\Available Bytes",
-                                "\\Processor(_Total)\\% Processor Time"
-                            ]
-                        }
-                    ],
-                    "extensions": [
-                        {
-                            "name": "Microsoft-VMInsights-Health",
-                            "streams": [
-                                "Microsoft-HealthStateChange"
-                            ],
-                            "extensionName": "HealthExtension",
-                            "extensionSettings": {
-                                "schemaVersion": "1.0",
-                                "contentVersion": "",
-                                "healthRuleOverrides": [
-                                    {
-                                    "scopes": ["*"],
-                                    "monitors": ["root"],
-                                    "alertConfiguration": {
-                                        "isEnabled": true
-                                        }
-                                    }
-                                ]
-                            },
-                            "inputDataSources": [
-                                "VMHealthPerfCounters"
-                            ]
-                        }
-                    ]
-                },
-                "destinations": {
-                    "logAnalytics": [
-                        {
-                            "workspaceResourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
-                            "name": "Microsoft-HealthStateChange-Dest"
-                        }
-                    ]
-                },
-                "dataFlows": [
-                    {
-                        "streams": [
-                            "Microsoft-HealthStateChange"
-                        ],
-                        "destinations": [
-                            "Microsoft-HealthStateChange-Dest"
-                        ]
-                    }
-                ]
+              "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+              "type": "OmsAgentForLinux",
+              "typeHandlerVersion": "1.7",
+              "autoUpgradeMinorVersion": true,
+              "settings": {
+                "workspaceId": "[reference('WorkspaceTemplate').outputs.WorkspaceID.value]"
+              },
+              "protectedSettings": {
+                "workspaceKey": "[reference('WorkspaceTemplate').outputs.WorkspaceKey.value]" 
+              }
             }
-        }
-    ],
-    "outputs": {
-        "WorkspaceID": {
-            "type": "string",
-            "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2015-03-20').customerId]"
+           }, 
+        {
+          "name": "DependencyAgent",
+          "type": "extensions",
+          "apiVersion": "2021-03-01",
+          "location": "[parameters('location')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]",
+            "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vmName'), 'LogAnalyticsAgent')]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+            "type": "DependencyAgentLinux",
+            "typeHandlerVersion": "9.5",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+                "workspaceId": "[reference('WorkspaceTemplate').outputs.WorkspaceID.value]"
+              },
+              "protectedSettings": {
+                "workspaceKey": "[reference('WorkspaceTemplate').outputs.WorkspaceKey.value]" 
+              }
+          }
         },
-        "WorkspaceKey": {
-            "type": "string",
-            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '2015-11-01-preview').primarySharedKey]"
-        },
-        "DataCollectionRuleID": {
-            "type": "string",
-            "value": "[resourceId('Microsoft.Insights/dataCollectionRules', parameters('DataCollectionRuleName'))]"
-        }
+          {
+            "name": "AzureMonitorLinuxAgent",
+            "type": "extensions",
+            "apiVersion": "2020-06-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]",
+              "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vmName'), 'DependencyAgent')]"
+            ],
+            "properties": {
+              "publisher": "Microsoft.Azure.Monitor",
+              "type": "AzureMonitorLinuxAgent",
+              "typeHandlerVersion": "1.5",
+              "autoUpgradeMinorVersion": true
+             }
+          },
+          {
+            "name": "GuestHealthLinuxAgent",
+            "type": "extensions",
+            "apiVersion": "2018-06-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+              "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]",
+              "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vmName'), 'AzureMonitorLinuxAgent')]"
+            ],
+            "properties": {
+              "publisher": "Microsoft.Azure.Monitor.VirtualMachines.GuestHealth",
+              "type": "GuestHealthLinuxAgent",
+              "typeHandlerVersion": "1.0",
+              "autoUpgradeMinorVersion": true
+            }
+          }
+      ]
+    },
+    {
+        "type": "Microsoft.Compute/virtualMachines/providers/dataCollectionRuleAssociations",
+        "name": "[concat(variables('vmName'),'/microsoft.insights/', 'DataCollectionRuleAssociation')]",
+        "apiVersion": "2019-11-01-preview",
+        "dependsOn": [
+          "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]",
+          "[resourceId('Microsoft.Resources/deployments', 'WorkspaceTemplate')]"
+        ],
+        "properties": {
+          "description": "Association of data collection rule for VM Insights Health.",
+          "dataCollectionRuleId": "[reference('WorkspaceTemplate').outputs.DataCollectionRuleID.value]"
+          }
+      }
+  ],
+  "outputs": {
+    "ConnectionString": {
+      "type": "string",
+      "value": "[concat('\"', 'Server=',reference(concat('Microsoft.Network/publicIPAddresses/', variables('PublicIPAddressName'))).ipAddress,';Initial Catalog=TestDB;Uid=sa;Pwd=Thisisapassword1', '\"')]"
     }
+  }
 }
